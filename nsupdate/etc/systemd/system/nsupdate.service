@@ -1,0 +1,14 @@
+[Unit]
+After=network-online.target
+Description=Dynamic DNS update service for local hostname
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/nsupdate.sh ns1.lnar.net ns3 lnar.net 3600 public
+Restart=always
+RestartSec=30
+StandardError=journal
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
