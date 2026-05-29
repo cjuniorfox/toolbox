@@ -1,0 +1,12 @@
+[Unit]
+Description=Monthly PBS filesystem backup (%i)
+
+[Timer]
+OnCalendar=Fri 03:00
+RandomizedDelaySec=2h
+Persistent=true
+
+Unit=pbs-file-backup@weekly.service
+
+[Install]
+WantedBy=timers.target

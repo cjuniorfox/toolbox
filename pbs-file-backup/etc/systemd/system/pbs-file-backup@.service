@@ -1,0 +1,24 @@
+[Unit]
+Description=PBS Filesystem backup (%i)
+After=zfs.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+#systemd-ask-password -n | systemd-creds encrypt --name proxmox-backup-client.password - /etc/credstore.encrypted/pbs-media-backup.cred
+
+LoadCredentialEncrypted=proxmox-backup-client.password:/etc/credstore.encrypted/pbs-file-backup.cred
+
+ExecStart=/usr/local/bin/pbs-file-backup.sh /etc/pbs-file-backup/%i.conf
+
+TimeoutStartSec=0
+
+PrivateTmp=yes
+NoNewPrivileges=yes
+UMask=0077
+RuntimeDirectory=pbs-file-backup
+UMask=0077
