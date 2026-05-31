@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-
-if [[ ! -f /usr/bin/wg ]]; then
-	dnf update -y
-	dnf install wireguard-tools -y
-fi
-
 if [[ ! -f /usr/local/sbin/snid ]]; then
 	curl 'https://github.com/AGWA/snid/releases/download/v0.4.0/snid-v0.4.0-linux-amd64' -Lo /usr/local/sbin/snid && chmod +x /usr/local/sbin/snid
 fi
