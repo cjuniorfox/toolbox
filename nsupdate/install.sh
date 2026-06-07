@@ -1,5 +1,31 @@
 #!/usr/bin/env sh
 
+
+install_nsupdate() {
+	if command -v nsupdate >/dev/null 2>&1; then
+		echo "nsupdate is already installed"
+		return 0
+	fi
+
+	if [ -f /etc/debian_version ]; then
+		echo "Installing dnsutils..."
+		apt-get update
+		apt-get install -y dnsutils
+
+	elif [ -f /etc/redhat-release ]; then
+		echo "Installing bind-utils..."
+		if command -v dnf >/dev/null 2>&1; then
+			dnf install -y bind-utils
+		else
+			yum install -y bind-utils
+		fi
+
+	else
+		echo "Unsupported distribution"
+		return 1
+	fi
+}
+
 until [[ $CORRECT == "y" ]]; do
 	unset NSSERVER
 	unset HOST
@@ -73,12 +99,16 @@ TSIG Key: [secret with length of ${#TSIG_KEY}]
 	CORRECT="${CORRECT:0:1}"
 done
 
+install_nsupdate
+
 cat << EOF > /etc/tsig.key
 key "${TSIG_NAME}" {
 	algorithm hmac-sha256;
 	secret "${TSIG_KEY}";
 };
 EOF
+
+
 chmod 600 /etc/tsig.key
 
 curl -Lso /usr/local/bin/nsupdate.sh 'https://github.com/cjuniorfox/toolbox/raw/refs/heads/main/nsupdate/usr/local/bin/nsupdate.sh'
