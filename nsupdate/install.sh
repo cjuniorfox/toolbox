@@ -80,6 +80,9 @@ key "${TSIG_NAME}" {
 };
 EOF
 
+curl -Lso /usr/local/bin/nsupdate.sh 'https://github.com/cjuniorfox/toolbox/raw/refs/heads/main/nsupdate/usr/local/bin/nsupdate.sh'
+chmod +x /usr/local/bin/nsupdate/sh
+
 curl -Ls 'https://raw.githubusercontent.com/cjuniorfox/toolbox/refs/heads/main/nsupdate/etc/systemd/system/nsupdate.service' | \
 	sed \
 	-e "s/{{NSSERVER}}/$NSSERVER/g" \
@@ -89,3 +92,4 @@ curl -Ls 'https://raw.githubusercontent.com/cjuniorfox/toolbox/refs/heads/main/n
 	-e "s/{{TTL}}/$TTL/g" > /etc/systemd/system/nsupdate.service
 systemctl daemon-reload
 systemctl enable --now nsupdate.service
+systemctl status nsupdate.service
