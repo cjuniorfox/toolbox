@@ -79,6 +79,7 @@ key "${TSIG_NAME}" {
 	secret "${TSIG_KEY}";
 };
 EOF
+chmod 600 /etc/tsig.key
 
 curl -Lso /usr/local/bin/nsupdate.sh 'https://github.com/cjuniorfox/toolbox/raw/refs/heads/main/nsupdate/usr/local/bin/nsupdate.sh'
 chmod +x /usr/local/bin/nsupdate/sh
