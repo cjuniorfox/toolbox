@@ -4,7 +4,7 @@ Description=Dynamic DNS update service for local hostname
 Wants=network-online.target
 
 [Service]
-ExecStart=/usr/local/bin/nsupdate.sh ns1.lnar.net ns3 lnar.net 3600 public
+ExecStart=/usr/local/bin/nsupdate.sh {{NSSERVER}} {{HOST}} {{DOMAIN}} {{TTL}} {{PUBLIC}}
 Restart=always
 RestartSec=30
 StandardError=journal
