@@ -13,5 +13,5 @@ Install nameserver update for updating dynamically registers on technitium DNS s
 ## How to install
 
 ```shell
-sh -c <(curl -Ls 'https://raw.githubusercontent.com/cjuniorfox/toolbox/refs/heads/main/nsupdate/install.sh')
+sh <(curl -Ls 'https://raw.githubusercontent.com/cjuniorfox/toolbox/refs/heads/main/nsupdate/install.sh')
 ```
