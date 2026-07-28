@@ -13,6 +13,15 @@ PUBLIC="$5"
 FQDN="${HOST}.${ZONE}"
 QUERYFILE=$(mktemp)
 
+# Allow overriding the TSIG key file via environment variable. Default to /etc/tsig.key
+TSIG_KEY_FILE="${TSIG_KEY_FILE:-/etc/tsig.key}"
+
+# Verify the TSIG key file exists and is readable
+if [[ ! -r "$TSIG_KEY_FILE" ]]; then
+    echo "TSIG key file '$TSIG_KEY_FILE' not found or not readable" >&2
+    exit 1
+fi
+
 is_private_ipv4() {
 	local ip="$1"
 	[[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || return 1
@@ -54,32 +63,32 @@ is_private_ipv6() {
 
 update(){
 {
-		echo "server $NSSERVER"
-		echo "zone $ZONE"
+			echo "server $NSSERVER"
+			echo "zone $ZONE"
 
-		# Remove the current entries for this hostname
-		echo "update delete $FQDN A"
-		echo "update delete $FQDN AAAA"
+			# Remove the current entries for this hostname
+			echo "update delete $FQDN A"
+			echo "update delete $FQDN AAAA"
 
-		# Add all IPv4 for this hostname
-		for ip in "$@"; do
-			if [[ "$ip" != *:* && "$ip" != 127.* ]]; then
-				if [[ -z "$PUBLIC" ]]; then
-					echo "update add $FQDN $TTL A $ip"
-				elif ! is_private_ipv4 $ip; then
-					echo "update add $FQDN $TTL A $ip" 
+			# Add all IPv4 for this hostname
+			for ip in "$@"; do
+				if [[ "$ip" != *:* && "$ip" != 127.* ]]; then
+					if [[ -z "$PUBLIC" ]]; then
+						echo "update add $FQDN $TTL A $ip"
+					elif ! is_private_ipv4 $ip; then
+						echo "update add $FQDN $TTL A $ip" 
+					fi
+				elif [[ "$ip" == *:* && "$ip" != ::1 && "$ip" != fe80::* ]]; then
+					if [[ -z "$PUBLIC" ]]; then
+						echo "update add $FQDN $TTL AAAA $ip"
+					elif ! is_private_ipv6 $ip; then
+						echo "update add $FQDN $TTL AAAA $ip"
+					fi
 				fi
-			elif [[ "$ip" == *:* && "$ip" != ::1 && "$ip" != fe80::* ]]; then
-				if [[ -z "$PUBLIC" ]]; then
-					echo "update add $FQDN $TTL AAAA $ip"
-				elif ! is_private_ipv6 $ip; then
-					echo "update add $FQDN $TTL AAAA $ip"
-				fi
-			fi
-		done
+			done
 
-		echo "send"
-	} | nsupdate -k /etc/tsig.key
+			echo "send"
+	} | nsupdate -k "$TSIG_KEY_FILE"
 }
 
 cleanup(){
@@ -95,4 +104,3 @@ while true; do
 	fi
 	sleep $TTL
 done
-
