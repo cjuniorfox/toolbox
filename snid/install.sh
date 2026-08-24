@@ -43,13 +43,18 @@ Description=SNI TLS Proxy Daemon
 After=network-online.target
 
 [Service]
-ExecStartPre=/usr/bin/sh -c '/usr/sbin/ip route add local ${NAT46_PREFIX}/96 dev lo || exit 0'
-ExecStart=/usr/local/sbin/snid -listen tcp:0.0.0.0:443 -mode nat46 -nat46-prefix ${NAT46_PREFIX} -backend-cidr ${BACKEND_CIDR}
-ExecStopPost=/usr/bin/sh -c '/usr/sbin/ip route del local ${NAT46_PREFIX}/96 dev lo || exit 0'
+ExecStartPre=/usr/sbin/ip -6 route replace local fd38:82fc:4248:46:4646::/96 dev lo
+# Add this route only if using BGP (frr)
+ExecStartPre=/usr/sbin/ip -6 route replace fd38:82fc:4248:46:4646::/96 dev lo
+ExecStart=/usr/local/sbin/snid -listen tcp:0.0.0.0:443 -mode nat46 -nat46-prefix fd38:82fc:4248:46:4646:: -backend-cidr 2804:1124:fd00::/40
+# Add this route only if using BGP (frr)
+ExecStopPost=/usr/sbin/ip -6 route del fd38:82fc:4248:46:4646::/96 dev lo
+ExecStopPost=/usr/sbin/ip -6 route del local fd38:82fc:4248:46:4646::/96 dev lo
 Restart=always
 
 [Install]
 WantedBy=multi-user.target
+
 EOF
 
 systemctl daemon-reload
