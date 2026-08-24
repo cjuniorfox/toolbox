@@ -35,13 +35,15 @@ if [[ -z "$BACKEND_CIDR" ]]; then
 	echo 'Define BACKEND_CIDR first. This is the backend CIDR for your network. Can be the ISP prefix. Ex: 2001:bd8:1234::/48'
 	exit 1
 fi
+echo "Create /etc/sysctl.d/10-ipv6-forwarding.conf"
+echo "or /usr/sbin/sysctl -w net.ipv6.conf.all.forwarding=1"
 cat << EOF > /etc/systemd/system/snid.service
 [Unit]
 Description=SNI TLS Proxy Daemon
 After=network-online.target
 
 [Service]
-ExecStartPre=/usr/bin/sh -c '/usr/sbin/sysctl -w net.ipv6.conf.all.forwarding=1 && /usr/sbin/ip route add local ${NAT46_PREFIX}/96 dev lo || exit 0'
+ExecStartPre=/usr/bin/sh -c '/usr/sbin/ip route add local ${NAT46_PREFIX}/96 dev lo || exit 0'
 ExecStart=/usr/local/sbin/snid -listen tcp:0.0.0.0:443 -mode nat46 -nat46-prefix ${NAT46_PREFIX} -backend-cidr ${BACKEND_CIDR}
 ExecStopPost=/usr/bin/sh -c '/usr/sbin/ip route del local ${NAT46_PREFIX}/96 dev lo || exit 0'
 Restart=always
