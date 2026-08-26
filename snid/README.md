@@ -15,7 +15,7 @@ The following variables are required for installing `snid`. If it is not configu
 
 ### 1. Define the environment variables:
 
-Do the environment variables configuration before installing.
+Set the environment variables before installing.
 
 The `BACKEND_CIDR` is the network where the web service that you want to proxy into lives on.
 The `NAT46_PREFIX` is optional.
