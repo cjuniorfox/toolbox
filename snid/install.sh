@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 if [[ ! -f /usr/local/sbin/snid ]]; then
-	if [[ ! curl --help &> /dev/null ]]; them
-		"echo curl not installed. Install curl first."
+	if ! command -v curl &> /dev/null; then
+		echo "curl not installed. Install curl first."
 		exit 1
 	fi
 	curl 'https://github.com/AGWA/snid/releases/download/v0.4.0/snid-v0.4.0-linux-amd64' -Lo /usr/local/sbin/snid && chmod +x /usr/local/sbin/snid
